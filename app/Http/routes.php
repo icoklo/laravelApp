@@ -21,5 +21,13 @@ Route::controllers([
 ]);
 
 Route::get('/foo', function () {
-    return 'Hello World';
+    return 'Hello World from laravel!';
 });
+
+Route::post('/home/user', "UserController@unosKorisnika");
+
+// Route::post('/home/user/{id}', "Kontroler\\RadSKorisnicima:editKorisnika");
+
+Route::get('/home/user/{id}', "UserController@ispisPodatakaKorisnika")->where('id', '[0-9]+');
+
+Route::get('/home/user/list', "UserController@ispisSvihKorisnika");
