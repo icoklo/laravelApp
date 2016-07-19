@@ -20,4 +20,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	// indicates if the model should be timestamped
 	public $timestamps = false;
 
+	public function fullName()
+	{
+		// pristupas stupcima iz baze kao varijablama s istim imenom kakvo je i definirano u tablici iz baze
+		return $this->ime . " ". $this->prezime;
+	}
+
 }

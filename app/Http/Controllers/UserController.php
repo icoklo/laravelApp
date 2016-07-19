@@ -1,44 +1,68 @@
 <?php namespace App\Http\Controllers;
 
 use App\User;
-use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class UserController extends Controller
 {
-	public function provjeriPostParametre(){
-		if(isset($_POST["ime"]) AND isset($_POST["prezime"])){
-			// ako su za ime i prezime unesene neke vrijednosti
-			if($_POST["ime"] AND $_POST["prezime"]){
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else{
-			return false;
-		}
-	}
 
-	public function unosKorisnika(){
+	public function unosKorisnika(Request $request){
 		// echo csrf_field();
+		echo "tu smo";
+		$this->validate($request,[
+			'ime' => 'required',
+			'prezime' => 'required',
+			]);
 
 		$polje = array();
-		if($this->provjeriPostParametre()==true){
-			$imeKorisnika = $_POST["ime"];
-			$prezimeKorisnika = $_POST["prezime"];
-			$user = new User;
-			$user->ime = $imeKorisnika;
-			$user->prezime = $prezimeKorisnika;
-			$user->save();
-			$poruka = "Korisnik ".$imeKorisnika." ".$prezimeKorisnika." je unesen.";
+		$imeKorisnika = $request->input('ime', 'Default');
+		$prezimeKorisnika = $request->input('prezime', 'Default');
+		$user = new User;
+		$user->ime = $imeKorisnika;
+		$user->prezime = $prezimeKorisnika;
+		$user->save();
+		$poruka = "Korisnik ".$imeKorisnika." ".$prezimeKorisnika." je unesen.";
+		$polje = array('kod' => 200, 'poruka' => $poruka);
+
+		return (new Response($polje,200))->header('Content-Type', 'application/json');
+
+	}
+
+	public function editKorisnika(Request $request,$id){
+		// echo "id ".$id;
+		$pronadiKorisnika = User::find($id);
+		$poruka = "";
+
+		// ako je pronaden korisnik
+		if($pronadiKorisnika){
+
+			// provjera jesu li uneseni POST parametri
+			$this->validate($request,[
+				'ime' => 'required',
+				'prezime' => 'required',
+				]);
+
+			$staroIme = $pronadiKorisnika->ime;
+			$staroPrezime = $pronadiKorisnika->prezime;
+			$pronadiKorisnika->ime = $request->input('ime', 'Default');
+			$pronadiKorisnika->prezime = $request->input('prezime', 'Default');
+
+			// spremi promjene u bazu
+			$pronadiKorisnika->save();
+
+			// Moze i ovakav način
+			$poruka = "Stari podaci: {$staroIme} {$staroPrezime}, Novi podaci: {$pronadiKorisnika->fullName()}.";
 			$polje = array('kod' => 200, 'poruka' => $poruka);
-				// pristup metodi ispis() iz klase Kontroler
 			return (new Response($polje,200))->header('Content-Type', 'application/json');
+
 		}
 		else{
-			$poruka = "Niste unijeli ime i prezime!";
+			/* $polje = array('poruka' => $poruka);
+			echo json_encode($polje); */
+			$poruka = "Korisnik sa id: ". $id . " ne postoji";
 			$polje = array('kod' => 400, 'poruka' => $poruka);
 			return (new Response($polje,400))->header('Content-Type', 'application/json');
 		}

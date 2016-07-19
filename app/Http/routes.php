@@ -26,7 +26,7 @@ Route::get('/foo', function () {
 
 Route::post('/home/user', "UserController@unosKorisnika");
 
-// Route::post('/home/user/{id}', "Kontroler\\RadSKorisnicima:editKorisnika");
+Route::post('/home/user/{id}', "UserController@editKorisnika");
 
 Route::get('/home/user/{id}', "UserController@ispisPodatakaKorisnika")->where('id', '[0-9]+');
 
