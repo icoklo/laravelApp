@@ -1,21 +1,17 @@
 <?php namespace App\Http\Controllers;
 
-use App\User;
+use App\Models\User;
 
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\editUserRequest;
 
 class UserController extends Controller
 {
 
-	public function unosKorisnika(Request $request){
+	public function unosKorisnika(editUserRequest $request){
 		// echo csrf_field();
-		echo "tu smo";
-		$this->validate($request,[
-			'ime' => 'required',
-			'prezime' => 'required',
-			]);
 
 		$polje = array();
 		$imeKorisnika = $request->input('ime', 'Default');
@@ -31,41 +27,24 @@ class UserController extends Controller
 
 	}
 
-	public function editKorisnika(Request $request,$id){
+	public function editKorisnika(editUserRequest $request,$id){
 		// echo "id ".$id;
-		$pronadiKorisnika = User::find($id);
+		$pronadiKorisnika = User::findOrFail($id);
 		$poruka = "";
 
-		// ako je pronaden korisnik
-		if($pronadiKorisnika){
+		$staroIme = $pronadiKorisnika->ime;
+		$staroPrezime = $pronadiKorisnika->prezime;
+		$pronadiKorisnika->ime = $request->input('ime', 'Default');
+		$pronadiKorisnika->prezime = $request->input('prezime', 'Default');
 
-			// provjera jesu li uneseni POST parametri
-			$this->validate($request,[
-				'ime' => 'required',
-				'prezime' => 'required',
-				]);
+		// spremi promjene u bazu
+		$pronadiKorisnika->save();
 
-			$staroIme = $pronadiKorisnika->ime;
-			$staroPrezime = $pronadiKorisnika->prezime;
-			$pronadiKorisnika->ime = $request->input('ime', 'Default');
-			$pronadiKorisnika->prezime = $request->input('prezime', 'Default');
+		// Moze i ovakav način
+		$poruka = "Stari podaci: {$staroIme} {$staroPrezime}, Novi podaci: {$pronadiKorisnika->fullName()}.";
+		$polje = array('kod' => 200, 'poruka' => $poruka);
+		return (new Response($polje,200))->header('Content-Type', 'application/json');
 
-			// spremi promjene u bazu
-			$pronadiKorisnika->save();
-
-			// Moze i ovakav način
-			$poruka = "Stari podaci: {$staroIme} {$staroPrezime}, Novi podaci: {$pronadiKorisnika->fullName()}.";
-			$polje = array('kod' => 200, 'poruka' => $poruka);
-			return (new Response($polje,200))->header('Content-Type', 'application/json');
-
-		}
-		else{
-			/* $polje = array('poruka' => $poruka);
-			echo json_encode($polje); */
-			$poruka = "Korisnik sa id: ". $id . " ne postoji";
-			$polje = array('kod' => 400, 'poruka' => $poruka);
-			return (new Response($polje,400))->header('Content-Type', 'application/json');
-		}
 	}
 
 	public function ispisPodatakaKorisnika($id){
@@ -73,19 +52,13 @@ class UserController extends Controller
 		$korisnik = "";
 		$poruka = "";
 
-		// jedan korisnik
-		$korisnik = User::find($id);
-		if($korisnik){
-			$polje = array('id' => $korisnik->id, 'Ime' => $korisnik->ime, 'Prezime' => $korisnik->prezime);
-			return (new Response($polje,200))->header('Content-Type', 'application/json');
-		}
-		else {
-			$poruka = "Korisnik sa id ". $id . " ne postoji";
-			$polje = array('kod' => 400, 'poruka' => $poruka);
-			return (new Response($polje,400))->header('Content-Type', 'application/json');
-		}
-	}
+		// jedan korisnik, ako se ne pronade korisnik vraca se ModelNotFoundException
+		$korisnik = User::findOrFail($id);
 
+		$polje = array('id' => $korisnik->id, 'Ime' => $korisnik->ime, 'Prezime' => $korisnik->prezime);
+		return (new Response($polje,200))->header('Content-Type', 'application/json');
+
+	}
 
 	public function ispisSvihKorisnika(){
 		$korisnici = User::all();

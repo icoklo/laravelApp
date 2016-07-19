@@ -2,6 +2,8 @@
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Http\Response;
 
 class Handler extends ExceptionHandler {
 
@@ -36,7 +38,13 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $e)
 	{
-		if ($this->isHttpException($e))
+
+		if($e instanceOf ModelNotFoundException)
+		{
+			// ako netko slucajno unese krivi id korisnika i ulovi se ModelNotFoundException generira se ova greska sa kodom 404
+			abort(404);
+		}
+		else if ($this->isHttpException($e))
 		{
 			return $this->renderHttpException($e);
 		}
