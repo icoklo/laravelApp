@@ -14,8 +14,8 @@ class UserController extends Controller
 		// echo csrf_field();
 
 		$polje = array();
-		$imeKorisnika = $request->input('ime', 'Default');
-		$prezimeKorisnika = $request->input('prezime', 'Default');
+		$ime_korisnika = $request->input('ime', 'Default');
+		$prezime_korisnika = $request->input('prezime', 'Default');
 		$user = new User;
 		$user->ime = $imeKorisnika;
 		$user->prezime = $prezimeKorisnika;
@@ -29,16 +29,16 @@ class UserController extends Controller
 
 	public function editKorisnika(editUserRequest $request,$id){
 		// echo "id ".$id;
-		$pronadiKorisnika = User::findOrFail($id);
+		$pronadi_korisnika = User::findOrFail($id);
 		$poruka = "";
 
-		$staroIme = $pronadiKorisnika->ime;
-		$staroPrezime = $pronadiKorisnika->prezime;
-		$pronadiKorisnika->ime = $request->input('ime', 'Default');
-		$pronadiKorisnika->prezime = $request->input('prezime', 'Default');
+		$staro_ime = $pronadiKorisnika->ime;
+		$staro_prezime = $pronadiKorisnika->prezime;
+		$pronadi_korisnika->ime = $request->input('ime', 'Default');
+		$pronadi_korisnika->prezime = $request->input('prezime', 'Default');
 
 		// spremi promjene u bazu
-		$pronadiKorisnika->save();
+		$pronadi_korisnika->save();
 
 		// Moze i ovakav način
 		$poruka = "Stari podaci: {$staroIme} {$staroPrezime}, Novi podaci: {$pronadiKorisnika->fullName()}.";
