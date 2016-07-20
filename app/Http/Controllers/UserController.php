@@ -17,10 +17,10 @@ class UserController extends Controller
 		$ime_korisnika = $request->input('ime', 'Default');
 		$prezime_korisnika = $request->input('prezime', 'Default');
 		$user = new User;
-		$user->ime = $imeKorisnika;
-		$user->prezime = $prezimeKorisnika;
+		$user->ime = $ime_korisnika;
+		$user->prezime = $prezime_korisnika;
 		$user->save();
-		$poruka = "Korisnik ".$imeKorisnika." ".$prezimeKorisnika." je unesen.";
+		$poruka = "Korisnik ".$ime_korisnika." ".$prezime_korisnika." je unesen.";
 		$polje = array('kod' => 200, 'poruka' => $poruka);
 
 		return (new Response($polje,200))->header('Content-Type', 'application/json');
@@ -32,8 +32,8 @@ class UserController extends Controller
 		$pronadi_korisnika = User::findOrFail($id);
 		$poruka = "";
 
-		$staro_ime = $pronadiKorisnika->ime;
-		$staro_prezime = $pronadiKorisnika->prezime;
+		$staro_ime = $pronadi_korisnika->ime;
+		$staro_prezime = $pronadi_korisnika->prezime;
 		$pronadi_korisnika->ime = $request->input('ime', 'Default');
 		$pronadi_korisnika->prezime = $request->input('prezime', 'Default');
 
@@ -41,7 +41,7 @@ class UserController extends Controller
 		$pronadi_korisnika->save();
 
 		// Moze i ovakav način
-		$poruka = "Stari podaci: {$staroIme} {$staroPrezime}, Novi podaci: {$pronadiKorisnika->fullName()}.";
+		$poruka = "Stari podaci: {$staro_ime} {$staro_prezime}, Novi podaci: {$pronadi_korisnika->fullName()}.";
 		$polje = array('kod' => 200, 'poruka' => $poruka);
 		return (new Response($polje,200))->header('Content-Type', 'application/json');
 
